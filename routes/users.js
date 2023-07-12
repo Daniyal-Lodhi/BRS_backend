@@ -257,21 +257,28 @@ router.post('/rentvehicle', fetchuser, [
                     //    adding the person cnic to rental who requested for rent in user table
                     conn.query('INSERT INTO rental set ?', rentaldata, (error) => {
                         if (error) {
-                            return res.status(500).json({ error, success })
+                            return res.status(500).json({ success, error })
                         }
                         else {
                             // adding the payments in db
                             var paymentInfo = {
                                 customercnic: req.customer.cnic,
-                                totalamount: rentaldata.totalprice
+                                totalamount: rentaldata.totalprice,
                             }
-                            conn.query('INSERT into payment set  ?', paymentInfo, (error) => {
+                            conn.query('INSERT into payment set ?', paymentInfo, (error) => {
                                 if (error) {
                                     return res.status(500).json({ error, success })
                                 }
                                 else {
-                                    success = true;
-                                    res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo })
+                                    conn.query("update bikes set availability = 'no' where bikeno = 125 ;", (error) => {
+                                        if (error) {
+                                            return res.status(500).json({ success, error })
+                                        }
+                                        else {
+                                            success = true ;
+                                            res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo })
+                                        }
+                                    })
                                 }
                             })
                         }
@@ -303,7 +310,7 @@ router.post('/cancelrent', fetchuser, (req, res) => {
             else {
                 // customer has not any ongoing rental
                 if (rows.length <= 0) {
-                    res.status(400).json({ message: 'you do not have any ongoing rental', success })
+                    res.status(400).json({success, message: 'you do not have any ongoing rental' })
                 }
                 else {
                     conn.query('delete from rental where customercnic = ?', req.customer.cnic, (error) => {
@@ -311,8 +318,14 @@ router.post('/cancelrent', fetchuser, (req, res) => {
                             res.status(500).json({ error, success })
                         }
                         else {
-                            success = true;
-                            res.status(200).json({ message: "Rental cancel successfully", success })
+                        conn.query("update bikes set availability = 'yes' where bikeno = 125 ;", (error) => {
+                            if (error) {
+                                return res.status(500).json({ success, error })
+                            }
+                            else {
+                                success = true ;
+                                res.status(200).json({success, message: "Rental cancel successfully"})
+                            }})
                         }
                     })
                 }
@@ -328,11 +341,11 @@ router.post('/cancelrent', fetchuser, (req, res) => {
 // Route 7: Add review (!! login required)
 
 router.post('/addreview', fetchuser, (req, res) => {
-    var success = false ;
+    var success = false;
     try {
         conn.query('select firstname,lastname from customer where cnic = ?', req.customer.cnic, (error, rows) => {
             if (error) {
-                return res.status(500).json({success, error })
+                return res.status(500).json({ success, error })
             }
             else {
                 const { firstname, lastname } = rows[0]
@@ -345,11 +358,11 @@ router.post('/addreview', fetchuser, (req, res) => {
 
                 conn.query('insert into reviews set ?', reviewInfo, (error) => {
                     if (error) {
-                        return res.status(500).json({success, error })
+                        return res.status(500).json({ success, error })
                     }
-                    else{
-                        success = true ;
-                        res.status(200).json({success,message:"review added successfully"})
+                    else {
+                        success = true;
+                        res.status(200).json({ success, message: "review added successfully" })
                     }
                 })
             }
@@ -358,6 +371,24 @@ router.post('/addreview', fetchuser, (req, res) => {
     } catch (error) {
         res.status(500).json({ error })
     }
+})
+// Route 8 fetch all avaliable bikes
+router.get('/fetchavailablebikes',(req,res)=>{
+    var success = false ;
+    try{
+    conn.query("select * from bikes where availability = 'yes'",(error,rows)=>{
+        if (error){
+            res.status(500).json({ error })
+        }
+        else{
+            success = true ;
+            res.status(500).json({success,rows})
+        }
+    })
+}catch(error){
+    res.status(500).json({ error })
+
+}
 })
 
 
