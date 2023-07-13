@@ -138,14 +138,14 @@ router.post('/login', [
     body('password')
 ], async (req, res) => {
     var success = false;
-    const errors = validationResult(req);
+    const errors =  await validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(200).json({ errors, success })
     }
     try {
-        conn.query('SELECT cnic,password from customer where email = ?', req.body.email, async (error, rows) => {
+        await conn.query('SELECT cnic,password from customer where email = ?', req.body.email, async (error, rows) => {
             if (error) {
-                return res.status(500).json({ error })
+                return res.status(500).json({ error})
             }
             else {
                 // checking if email is registered
