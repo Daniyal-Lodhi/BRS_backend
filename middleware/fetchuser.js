@@ -8,7 +8,7 @@ const fetchuser = (req,res,next)=>{
         res.status(401).send({'error': "token not found"})
     } 
     try{
-        const data = jwt.verify(token,process.env.SECRET) ;
+        const data = jwt.verify(token,"It has been a tough ride") ;
         req.customer = data.customer ;
         next()
     }catch(error){
