@@ -1,11 +1,10 @@
 import mysql from 'mysql2' ;
 var connection = mysql.createConnection({
-    host:'localhost',
-    user:'Daniyal Lodhi',
+    user:'root',
     password:'daniyal123',
-    database: 'brs'
-}) 
-
+    database: 'brs' 
+})  
+ 
 var checkconn = ()=>{
     connection.connect((err)=>{
         if(err){
