@@ -13,6 +13,10 @@ const port = 5000 ;
 
 app.use('/user',userRouter)
 app.use('/admin',adminRouter)
+app.use('/', (req,res)=>{
+    res.send("hello")
+  });
+  
 
 app.listen(port,()=>{
     console.log(`app is listening on ${port}`)
