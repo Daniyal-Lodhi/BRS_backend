@@ -1,5 +1,6 @@
 import mysql from 'mysql2' ;
 var connection = mysql.createConnection({
+    host:'localhost',
     user:'root',
     password:'daniyal123',
     database: 'brs' 
