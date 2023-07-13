@@ -145,7 +145,7 @@ router.post('/login', [
     try {
         await conn.query('SELECT cnic,password from customer where email = ?', req.body.email, async (error, rows) => {
             if (error) {
-                return res.status(500).json({ error})
+                return res.status(500).json({ error,message:"db hoosst kroo"})
             }
             else {
                 // checking if email is registered
