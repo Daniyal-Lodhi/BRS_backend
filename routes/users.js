@@ -1,4 +1,4 @@
-import conn from '../db.js';
+import conn,{checkconn} from '../db.js';
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
@@ -6,8 +6,7 @@ import jwt from 'jsonwebtoken';
 import fetchuser from '../middleware/fetchuser.js'
 const router = express.Router();
 import dotenv from 'dotenv';
-dotenv.config()
-
+dotenv.config() 
 
 // Route 1 : Show all users for staff/admin
 router.get('/displayallusers', async (req, res) => {
@@ -138,7 +137,7 @@ router.post('/login', [
     body('password')
 ], async (req, res) => {
     var success = false;
-    const errors =  await validationResult(req);
+    const errors =  validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(200).json({ errors, success })
     }
@@ -382,14 +381,38 @@ router.get('/fetchavailablebikes',(req,res)=>{
         }
         else{
             success = true ;
-            res.status(500).json({success,rows})
+            res.status(200).json({success,rows})
         }
     })
 }catch(error){
-    res.status(500).json({ error })
-
+    success = false ;
+    res.status(500).json({success, error })
 }
 })
+
+// Route 9 search bike by bike number 
+router.get('/getbike/:bikeref',async (req,res)=>{
+    var success = false ;
+    const bikeref = req.params.bikeref ; 
+    try{
+        conn.query("SELECT * from bikes where bikeNo = ? or bikeName = ?",[bikeref,bikeref],async(error,rows)=>{
+            if (error){
+                res.status(500).json({success, error })
+            }
+            else if (rows.length <= 0){
+                res.status(200).json({messsage:"No bike to display"})
+            }
+            else{
+                success = true ;
+                res.status(200).json({rows})
+            }
+        })
+    }catch(error){
+        success = false ;
+        res.status(500).json({success, error })
+    }
+})
+
 
 
 
