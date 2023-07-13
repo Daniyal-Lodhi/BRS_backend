@@ -143,13 +143,13 @@ router.post('/login', [
         return res.status(200).json({ errors, success })
     }
     try {
-        await conn.query('SELECT cnic,password from customer where email = ?', req.body.email, async (error, rows) => {
-            if (error) {
+        conn.query('SELECT cnic,password from customer where email = ?', req.body.email, async (error, rows) => {
+            if ( error) {
                 return res.status(500).json({ error,message:"db hoosst kroo"})
             }
             else {
                 // checking if email is registered
-                if (rows.length <= 0) {
+               if (await rows.length <= 0) {
                     res.status(400).json({ message: 'please login using correct credentials', success })
                 }
                 else {
