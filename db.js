@@ -1,9 +1,13 @@
 import mysql from 'mysql2' ;
+import dotenv from 'dotenv';
+dotenv.config() 
+
+
 var connection = mysql.createConnection({
-    host:'daniyalazure1.mysql.database.azure.com',
-    user:'daniyallodhi',
-    password:'SE-21041',
-    database: 'brs' ,
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE ,
     ssl: {
         rejectUnauthorized: false, // This line allows self-signed certificates, remove it if you have a valid SSL certificate
       },
