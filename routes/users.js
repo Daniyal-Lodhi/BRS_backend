@@ -3,10 +3,11 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import fetchuser from '../middleware/fetchuser.js'
+import fetchuser from '../middleware/fetchuser.js';
+import nodemailer from 'nodemailer';
 const router = express.Router();
 import dotenv from 'dotenv';
-dotenv.config() 
+dotenv.config()
 
 // Route 1 : Show all users for staff/admin
 router.get('/displayallusers', async (req, res) => {
@@ -137,18 +138,18 @@ router.post('/login', [
     body('password')
 ], async (req, res) => {
     var success = false;
-    const errors =  validationResult(req);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(200).json({ errors, success })
     }
     try {
         conn.query('SELECT cnic,password from customer where email = ?', req.body.email, async (error, rows) => {
-            if ( error) {
-                return res.status(500).json({ error,message:"db hoosst kroo"})
+            if (error) {
+                return res.status(500).json({ error, message: "db hoosst kroo" })
             }
             else {
                 // checking if email is registered
-               if (await rows.length <= 0) {
+                if (await rows.length <= 0) {
                     res.status(400).json({ message: 'please login using correct credentials', success })
                 }
                 else {
@@ -274,7 +275,7 @@ router.post('/rentvehicle', fetchuser, [
                                             return res.status(500).json({ success, error })
                                         }
                                         else {
-                                            success = true ;
+                                            success = true;
                                             res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo })
                                         }
                                     })
@@ -309,7 +310,7 @@ router.post('/cancelrent', fetchuser, (req, res) => {
             else {
                 // customer has not any ongoing rental
                 if (rows.length <= 0) {
-                    res.status(400).json({success, message: 'you do not have any ongoing rental' })
+                    res.status(400).json({ success, message: 'you do not have any ongoing rental' })
                 }
                 else {
                     conn.query('delete from rental where customercnic = ?', req.customer.cnic, (error) => {
@@ -317,14 +318,15 @@ router.post('/cancelrent', fetchuser, (req, res) => {
                             res.status(500).json({ error, success })
                         }
                         else {
-                        conn.query("update bikes set availability = 'yes' where bikeno = 125 ;", (error) => {
-                            if (error) {
-                                return res.status(500).json({ success, error })
-                            }
-                            else {
-                                success = true ;
-                                res.status(200).json({success, message: "Rental cancel successfully"})
-                            }})
+                            conn.query("update bikes set availability = 'yes' where bikeno = 125 ;", (error) => {
+                                if (error) {
+                                    return res.status(500).json({ success, error })
+                                }
+                                else {
+                                    success = true;
+                                    res.status(200).json({ success, message: "Rental cancel successfully" })
+                                }
+                            })
                         }
                     })
                 }
@@ -372,46 +374,85 @@ router.post('/addreview', fetchuser, (req, res) => {
     }
 })
 // Route 8 fetch all avaliable bikes
-router.get('/fetchavailablebikes',(req,res)=>{
-    var success = false ;
-    try{
-    conn.query("select * from bikes where availability = 'yes'",(error,rows)=>{
-        if (error){
-            res.status(500).json({ error })
-        }
-        else{
-            success = true ;
-            res.status(200).json({success,rows})
-        }
-    })
-}catch(error){
-    success = false ;
-    res.status(500).json({success, error })
-}
+router.get('/fetchavailablebikes', (req, res) => {
+    var success = false;
+    try {
+        conn.query("select * from bikes where availability = 'yes'", (error, rows) => {
+            if (error) {
+                res.status(500).json({ error })
+            }
+            else {
+                success = true;
+                res.status(200).json({ success, rows })
+            }
+        })
+    } catch (error) {
+        success = false;
+        res.status(500).json({ success, error })
+    }
 })
 
 // Route 9 search bike by bike number 
-router.get('/getbike/:bikeref',async (req,res)=>{
-    var success = false ;
-    const bikeref = req.params.bikeref ; 
-    try{
-        conn.query("SELECT * from bikes where bikeNo = ? or bikeName = ?",[bikeref,bikeref],async(error,rows)=>{
-            if (error){
-                res.status(500).json({success, error })
+router.get('/getbike/:bikeref', async (req, res) => {
+    var success = false;
+    const bikeref = req.params.bikeref;
+    try {
+        conn.query("SELECT * from bikes where bikeNo = ? or bikeName = ?", [bikeref, bikeref], async (error, rows) => {
+            if (error) {
+                res.status(500).json({ success, error })
             }
-            else if (rows.length <= 0){
-                res.status(200).json({messsage:"No bike to display"})
+            else if (rows.length <= 0) {
+                res.status(200).json({ messsage: "No bike to display" })
             }
-            else{
-                success = true ;
-                res.status(200).json({rows})
+            else {
+                success = true;
+                res.status(200).json({ rows })
             }
         })
-    }catch(error){
-        success = false ;
-        res.status(500).json({success, error })
+    } catch (error) {
+        success = false;
+        res.status(500).json({ success, error })
     }
 })
+
+// Route 10 Email us 
+router.post('/emailus', async (req, res) => {
+    var success = true;
+    const { name,emailaddress ,subject ,description } = req.body;
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASS
+        }
+    });
+
+    const mailOptions = {
+        from: {
+            name: name || null,
+            address: emailaddress ,
+        },
+        to: "daniyal22904@gmail.com",
+        subject: subject,
+        text: description,
+    };
+    const sendEmail = async (transporter, mailOptions) => {
+        try {
+            await transporter.sendMail(mailOptions);
+            res.status(200).json({success,message:"email has been sent"})
+        }catch(error){
+            success = false ;
+            res.status(500).json({success,error})
+        }
+    }
+
+    sendEmail(transporter, mailOptions)
+
+})
+
 
 
 
