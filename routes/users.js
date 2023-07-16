@@ -224,20 +224,26 @@ router.post('/rentvehicle', fetchuser, [
         const { cnic } = req.customer
 
         // fetching  bikeNo,rentalprice of vehicle to be rented by user w.r.t name
-        conn.query('select bikeNo,rentalPrice from bikes where bikeName = ?', req.body.bikeName, (error, rows) => {
+        conn.query('select bikeNo,rentalPrice,availabilty from bikes where bikeName = ?', req.body.bikeName, (error, rows) => {
             if (error) {
                 return res.status(500).json({ error, success })
             }
             var BikeId = rows[0].bikeNo;
             var Bikerentperhr = rows[0].rentalPrice;
+            var Bikeavailability = rows[0].availabilty;
+            
 
             // checking if the user has a current rental if yes then deny rental req
             conn.query('select customerCnic from rental where customerCnic = ?',cnic, (error, rows) => {
                 if (error) {
                     return res.status(500).json({ error, success })
                 }
+                else if (Bikeavailability === "no") {
+                    res.status(400).json({ success,message: "This bike is currently not available" })
+                }
+
                 else if (rows.length > 0) {
-                    res.status(400).json({ message: "You have already rented a vehicle, Can not rent more than one vehcile", success })
+                    res.status(400).json({success, message: "You have already rented a vehicle, Can not rent more than one vehcile" })
                 }
                 else if (rows.length <= 0) {
                     var enddatetime = new Date(req.body.rentalenddate);
@@ -270,7 +276,7 @@ router.post('/rentvehicle', fetchuser, [
                                     return res.status(500).json({ error, success })
                                 }
                                 else {
-                                    conn.query("update bikes set availability = 'no' where bikeno = 125 ;", (error) => {
+                                    conn.query("update bikes set availability = 'no' where bikeno = ?",BikeId, (error) => {
                                         if (error) {
                                             return res.status(500).json({ success, error })
                                         }
