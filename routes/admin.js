@@ -49,7 +49,7 @@ router.post('/addbike',(req,res)=>{
             bikeName : req.body.bikeName,
             biketype : req.body.biketype,
             condition : req.body.condition,
-            rentalprice : req.body.rentalprice,
+            rentalprice : 200,
             availability : "yes",
             image1 : req.body.image1,
             
