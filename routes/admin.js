@@ -118,7 +118,7 @@ router.post('/updatemaintenance',async(req,res)=>{
             else{
                 const bikenumber = maintenancedata.bikeNo
                 const currentdatetime = new Date() ;
-                conn.query("update bikes set lastmaintenance = ? where bikeno = ?",[currentdatetime,bikenumber],(error,rows)=>{
+                conn.query("update bikes set lastmaintenance = ? where bikeno = ?",[currentdatetime,bikenumber],(error)=>{
                     if (error){
                         res.status(500).json({success,error})
                     }

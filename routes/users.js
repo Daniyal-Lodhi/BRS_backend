@@ -232,7 +232,7 @@ router.post('/rentvehicle', fetchuser, [
             var Bikerentperhr = rows[0].rentalPrice;
 
             // checking if the user has a current rental if yes then deny rental req
-            conn.query('select customerCnic from rental', (error, rows) => {
+            conn.query('select customerCnic from rental where customerCnic = ?',cnic, (error, rows) => {
                 if (error) {
                     return res.status(500).json({ error, success })
                 }
@@ -276,7 +276,7 @@ router.post('/rentvehicle', fetchuser, [
                                         }
                                         else {
                                             success = true;
-                                            res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo })
+                                            res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo ,rentalPeriodInHr})
                                         }
                                     })
                                 }
@@ -313,6 +313,7 @@ router.post('/cancelrent', fetchuser, (req, res) => {
                     res.status(400).json({ success, message: 'you do not have any ongoing rental' })
                 }
                 else {
+                    // rent cancelation
                     conn.query('delete from rental where customercnic = ?', req.customer.cnic, (error) => {
                         if (error) {
                             res.status(500).json({ error, success })
