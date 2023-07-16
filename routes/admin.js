@@ -52,8 +52,7 @@ router.post('/addbike',(req,res)=>{
             rentalprice : req.body.rentalprice,
             availability : "yes",
             image1 : req.body.image1,
-            image2 : req.body.image2,
-            image3 : req.body.image3, 
+            
         }
         if(req.header("cnic")==='222'){
         conn.query("insert into bikes set ? ",bikedata,(error)=>{
