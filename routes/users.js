@@ -224,13 +224,13 @@ router.post('/rentvehicle', fetchuser, [
         const { cnic } = req.customer
 
         // fetching  bikeNo,rentalprice of vehicle to be rented by user w.r.t name
-        conn.query('select bikeNo,rentalPrice,availabilty from bikes where bikeName = ?', req.body.bikeName, (error, rows) => {
+        conn.query('select bikeNo,rentalPrice,availability from bikes where bikeName = ?', req.body.bikeName, (error, rows) => {
             if (error) {
                 return res.status(500).json({ error, success })
             }
             var BikeId = rows[0].bikeNo;
             var Bikerentperhr = rows[0].rentalPrice;
-            var Bikeavailability = rows[0].availabilty;
+            var Bikeavailability = rows[0].availability;
             
 
             // checking if the user has a current rental if yes then deny rental req
