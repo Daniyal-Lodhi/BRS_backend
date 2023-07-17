@@ -460,12 +460,12 @@ router.post('/emailus', async (req, res) => {
 
 })
 // Route 11 get rental data
-router.get('/getrental', async (req, res) => {
-    var success = false;
+router.get('/getrental',[fetchuser], async (req, res) => {
     try {
+        var success = false;
         conn.query("select * from rental where customerCnic = ?", req.customer.cnic, (error, rows) => {
             if (error) {
-                res.status(500).json({ success, error })
+                res.status(500).json({ success, error:"hello1"})
             }
 
             else if (rows.length <= 0) {
@@ -475,12 +475,12 @@ router.get('/getrental', async (req, res) => {
             }
             else {
                 success = true;
-                res.status(200).json({ success, data:rows[0]})
+                res.status(200).json({ success, rows})
             }
         })
     } catch (error) {
         success = false;
-        res.status(500).json({ success, error })
+        res.status(500).json({ success, error :"hej"})
     }
 })
 
