@@ -459,30 +459,30 @@ router.post('/emailus', async (req, res) => {
     sendEmail(transporter, mailOptions)
 
 })
-// Route 11 get rental data
-router.get('/getrental', async (req, res) => {
-    var success = false;
-    try {
-        conn.query("select * from rental where customerCnic = ?", req.customer.cnic, (error, rows) => {
-            if (error) {
-                res.status(500).json({ success, error })
-            }
+// // Route 11 get rental data
+// router.get('/getrental', async (req, res) => {
+//     var success = false;
+//     try {
+//         conn.query("select * from rental where customerCnic = ?", req.customer.cnic, (error, rows) => {
+//             if (error) {
+//                 res.status(500).json({ success, error })
+//             }
 
-            else if (rows.length <= 0) {
-                success = true;
-                res.status(200).json({ success, message: "you dont have any ongoing rental" })
+//             else if (rows.length <= 0) {
+//                 success = true;
+//                 res.status(200).json({ success, message: "you dont have any ongoing rental" })
 
-            }
-            else {
-                success = true;
-                res.status(200).json({ success, data:rows[0]})
-            }
-        })
-    } catch (error) {
-        success = false;
-        res.status(500).json({ success, error })
-    }
-})
+//             }
+//             else {
+//                 success = true;
+//                 res.status(200).json({ success, data:rows[0]})
+//             }
+//         })
+//     } catch (error) {
+//         success = false;
+//         res.status(500).json({ success, error })
+//     }
+// })
 
 
 
