@@ -231,19 +231,19 @@ router.post('/rentvehicle', fetchuser, [
             var BikeId = rows[0].bikeNo;
             var Bikerentperhr = rows[0].rentalPrice;
             var Bikeavailability = rows[0].availability;
-            
+
 
             // checking if the user has a current rental if yes then deny rental req
-            conn.query('select customerCnic from rental where customerCnic = ?',cnic, (error, rows) => {
+            conn.query('select customerCnic from rental where customerCnic = ?', cnic, (error, rows) => {
                 if (error) {
                     return res.status(500).json({ error, success })
                 }
                 else if (Bikeavailability === "no") {
-                    res.status(400).json({ success,message: "This bike is currently not available" })
+                    res.status(400).json({ success, message: "This bike is currently not available" })
                 }
 
                 else if (rows.length > 0) {
-                    res.status(400).json({success, message: "You have already rented a vehicle, Can not rent more than one vehcile" })
+                    res.status(400).json({ success, message: "You have already rented a vehicle, Can not rent more than one vehcile" })
                 }
                 else if (rows.length <= 0) {
                     var enddatetime = new Date(req.body.rentalenddate);
@@ -276,13 +276,13 @@ router.post('/rentvehicle', fetchuser, [
                                     return res.status(500).json({ error, success })
                                 }
                                 else {
-                                    conn.query("update bikes set availability = 'no' where bikeno = ?",BikeId, (error) => {
+                                    conn.query("update bikes set availability = 'no' where bikeno = ?", BikeId, (error) => {
                                         if (error) {
                                             return res.status(500).json({ success, error })
                                         }
                                         else {
                                             success = true;
-                                            res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo ,rentalPeriodInHr})
+                                            res.status(200).json({ success, message: "Vehicle rented successfully", rentaldata, paymentInfo, rentalPeriodInHr })
                                         }
                                     })
                                 }
@@ -425,7 +425,7 @@ router.get('/getbike/:bikeref', async (req, res) => {
 // Route 10 Email us 
 router.post('/emailus', async (req, res) => {
     var success = true;
-    const { name,emailaddress ,subject ,description } = req.body;
+    const { name, emailaddress, subject, description } = req.body;
     const transporter = nodemailer.createTransport({
         service: "gmail",
         host: "smtp.gmail.com",
@@ -440,7 +440,7 @@ router.post('/emailus', async (req, res) => {
     const mailOptions = {
         from: {
             name: name || null,
-            address: emailaddress ,
+            address: emailaddress,
         },
         to: "daniyal22904@gmail.com",
         subject: subject,
@@ -449,15 +449,39 @@ router.post('/emailus', async (req, res) => {
     const sendEmail = async (transporter, mailOptions) => {
         try {
             await transporter.sendMail(mailOptions);
-            res.status(200).json({success,message:"email has been sent"})
-        }catch(error){
-            success = false ;
-            res.status(500).json({success,error})
+            res.status(200).json({ success, message: "email has been sent" })
+        } catch (error) {
+            success = false;
+            res.status(500).json({ success, error })
         }
     }
 
     sendEmail(transporter, mailOptions)
 
+})
+// Route 11 get rental data
+router.get('/getrental', async (req, res) => {
+    var success = false;
+    try {
+        conn.query("select * from rental where customerCnic = ?", req.customer.cnic, (error, rows) => {
+            if (error) {
+                res.status(500).json({ success, error })
+            }
+
+            else if (rows.length <= 0) {
+                success = true;
+                res.status(200).json({ success, message: "you dont have any ongoing rental" })
+
+            }
+            else {
+                success = true;
+                res.status(200).json({ success, data:rows[0]})
+            }
+        })
+    } catch (error) {
+        success = false;
+        res.status(500).json({ success, error })
+    }
 })
 
 
