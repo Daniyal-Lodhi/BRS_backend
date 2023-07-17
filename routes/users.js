@@ -432,7 +432,7 @@ router.post('/emailus', async (req, res) => {
         port: 587,
         secure: false,
         auth: {
-            user: process.env.EMAIL,
+            user: process.env.EMAIL, 
             pass: process.env.PASS
         }
     });
