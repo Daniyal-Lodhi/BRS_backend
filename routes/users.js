@@ -443,7 +443,7 @@ router.post('/emailus', async (req, res) => {
             address: emailaddress,
         },
         to: "daniyal22904@gmail.com",
-        subject: subject,
+        subject: "hey",
         text: description,
     };
     const sendEmail = async (transporter, mailOptions) => {
@@ -455,12 +455,12 @@ router.post('/emailus', async (req, res) => {
             res.status(500).json({ success, error })
         }
     }
-
+ 
     sendEmail(transporter, mailOptions)
 
 })
 // Route 11 get rental data
-router.get('/getrental',[fetchuser], async (req, res) => {
+router.get('/getrental',fetchuser, async (req, res) => {
     try {
         var success = false;
         conn.query("select * from rental where customerCnic = ?", req.customer.cnic, (error, rows) => {
