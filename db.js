@@ -9,7 +9,7 @@ var connection = mysql.createConnection({
     user: "avnadmin",
     password: 'AVNS_Dx7Y59huxYYUyJD4ipH',
     database: 'brs' ,
-    port: '23552', 
+    port: 23552, 
     ssl: {
         rejectUnauthorized: false, // This line allows self-signed certificates, remove it if you have a valid SSL certificate
       },
